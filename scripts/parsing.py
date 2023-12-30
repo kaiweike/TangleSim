@@ -54,6 +54,10 @@ class BaseParser:
 
     def parse(self, fn, variation):
         raise NotImplementedError("Subclasses should implement this!")
+    
+    def _load_config(self):
+        with open(self.config_path) as f:
+            return json.load(f)
 
 class AWParser(BaseParser):
     def parse(self, fn, variation):
@@ -71,8 +75,7 @@ class AWParser(BaseParser):
         """
         logging.info(f'Parsing {fn}...')
         # Opening JSON file
-        with open(self.config_path) as f:
-            c = json.load(f)
+        c = self._load_config()
 
         v = str(c[variation])
 
@@ -105,8 +108,7 @@ class BlockInfoParser(BaseParser):
         """
         logging.info(f'Parsing {fn}...')
         # Opening JSON file
-        with open(self.config_path) as f:
-            c = json.load(f)
+        c = self._load_config()
         print("target:", self.target)
         v = ''
         if variation != '' :
@@ -152,8 +154,7 @@ class AcceptDelayParser(BaseParser):
         data = pd.read_csv(fn)
 
         # Opening JSON file
-        with open(self.config_path) as f:
-            c = json.load(f)      
+        c = self._load_config()     
 
         v = ''
         if variation != '' :
@@ -177,8 +178,7 @@ class ConfirmThresholdParser(BaseParser):
         data = pd.read_csv(fn)
 
         # Opening JSON file
-        with open(self.config_path) as f:
-            c = json.load(f)      
+        c = self._load_config()     
 
         v = str(c[variation])
         print("variation", v)
@@ -236,8 +236,7 @@ class MMParser(BaseParser):
         config_fn = config_fn.replace('.csv', '.config')
 
         # Opening JSON file
-        with open(config_fn) as f:
-            c = json.load(f)
+        c = self._load_config() 
 
         v = str(c[variation])
 
@@ -266,8 +265,7 @@ class WWParser(BaseParser):
         config_fn = config_fn.replace('.csv', '.config')
 
         # Opening JSON file
-        with open(config_fn) as f:
-            c = json.load(f)
+        c = self._load_config() 
 
         v = str(c[variation])
 
@@ -300,8 +298,7 @@ class ThroughputParser(BaseParser):
         config_fn = config_fn.replace('.csv', '.config')
 
         # Opening JSON file
-        with open(config_fn) as f:
-            c = json.load(f)
+        c = self._load_config() 
 
         v = str(c[variation])
 
@@ -339,8 +336,7 @@ class AllThroughputParser(BaseParser):
         config_fn = config_fn.replace('.csv', '.config')
 
         # Opening JSON file
-        with open(config_fn) as f:
-            c = json.load(f)
+        c = self._load_config() 
 
         v = str(c[variation])
 
@@ -382,8 +378,7 @@ class ConfirmedColorParser(BaseParser):
         config_fn = config_fn.replace('.csv', '.config')
 
         # Opening JSON file
-        with open(config_fn) as f:
-            c = json.load(f)
+        c = self._load_config() 
 
         data = pd.read_csv(fn)
 
@@ -442,8 +437,7 @@ class NodeParser(BaseParser):
         config_fn = config_fn.replace('.csv', '.config')
 
         # Opening JSON file
-        with open(config_fn) as f:
-            c = json.load(f)
+        c = self._load_config() 
 
         v = str(c[variation])
 
