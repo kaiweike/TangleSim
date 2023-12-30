@@ -22,7 +22,8 @@ def test_parse_block_information_file():
     expected_3 = pd.read_csv(file_path3, index_col=0)['Issuance Time Since Start (ns)']
     expected_4 = pd.read_csv(file_path4, index_col=0)['Issuance Time Since Start (ns)']
 
-    actual = parser.parse_block_information_file(fn, variation)
+    # actual = parser.parse_block_information_file(fn, variation)
+    actual = parser.parse_file(fn, variation, 'block_info')
 
     assert isinstance(actual, tuple)
     assert actual[0] == '8'

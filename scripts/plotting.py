@@ -66,7 +66,7 @@ class FigurePlotter:
                 try:
                     # colored_node_aw, convergence_time, flips, unconfirming blue, unconfirming red, honest total weight, x_axis
                     v, (cc, ct, flips, *_,
-                        x) = self.parser.parse_confirmed_color_file(f, var)
+                        x) = self.parser.parse_file(f, var, 'confirmed_color')
                 except:
                     logging.error(f'{fs}: Incomplete Data!')
                     continue
@@ -167,7 +167,7 @@ class FigurePlotter:
                 try:
                     # colored_node_counts, convergence_time, flips, unconfirming blue, unconfirming red, honest total weight, x_axis
                     v, (cc, *_, ub, ur, _,
-                        x) = self.parser.parse_confirmed_color_file(f, var)
+                        x) = self.parser.parse_file(f, var, 'confirmed_color')
                 except:
                     logging.error(f'{fs}: Incomplete Data!')
                     continue
@@ -244,7 +244,7 @@ class FigurePlotter:
 
                 try:
                     # confirmation_rate_depth
-                    v, depth = self.parser.parse_node_file(f, var)
+                    v, depth = self.parser.parse_file(f, var, 'node')
                 except:
                     logging.error(f'{fs}: Incomplete Data!')
                     continue
@@ -289,8 +289,7 @@ class FigurePlotter:
         for f in glob.glob(fs):
             try:
                 # colored_node_aw, convergence_time, flips, unconfirming blue, unconfirming red, honest total weight, x_axis
-                v, cc_ct_flips_total_aw_x = self.parser.parse_confirmed_color_file(
-                    f, var)
+                v, cc_ct_flips_total_aw_x = self.parser.parse_file(f, var, 'confirmed_color')
             except:
                 logging.error(f'{fs}: Incomplete Data!')
                 continue
@@ -345,7 +344,7 @@ class FigurePlotter:
         variation_data = {}
         for f in glob.glob(fs):
             try:
-                v, tp = self.parser.parse_throughput_file(f, var)
+                v, tp = self.parser.parse_file(f, var, 'throughput')
             except:
                 logging.error(f'{fs}: Incomplete Data!')
                 continue
@@ -421,7 +420,7 @@ class FigurePlotter:
         variation_data = {}
         for f in glob.glob(fs):
             try:
-                v, tp = self.parser.parse_all_throughput_file(f, var)
+                v, tp = self.parser.parse_file(f, var, 'all_throughput')
             except:
                 logging.error(f'{fs}: Incomplete Data!')
                 continue
@@ -587,7 +586,7 @@ class FigurePlotter:
         for f in glob.glob(fs):
             try:
                 print('f', f)
-                v, data, x_axis_adjust = self.parser.parse_aw_file(f, var)
+                v, data, x_axis_adjust = self.parser.parse_file(f, var, 'aw')
             except:
                 logging.error(f'{fs}: Incomplete Data!')
                 continue
@@ -656,7 +655,7 @@ class FigurePlotter:
                  non_spammer_accepted_time,
                  spammer_not_accepted_time,
                  non_spammer_not_accepted_time
-                 ) = self.parser.parse_block_information_file(f, var)
+                 ) = self.parser.parse_file(f, var, 'block_info')
             except:
                 logging.error(f'{f}: Incomplete Data!')
                 continue
@@ -724,8 +723,7 @@ class FigurePlotter:
         variation_data = {}
         for f in glob.glob(fs):
             try:
-                v, acceptance_delay_time = self.parser.parse_acceptance_delay_file(
-                    f, var)
+                v, acceptance_delay_time = self.parser.parse_file(f, var, 'accept_delay')
             except:
                 logging.error(f'{fs}: Incomplete Data!')
                 continue
@@ -770,7 +768,7 @@ class FigurePlotter:
             print(k, v)
         for f in glob.glob(fs):
             try:
-                v, data = self.parser.parse_mm_file(f, var)
+                v, data = self.parser.parse_file(f, var, 'mm')
             except:
                 logging.error(f'{fs}: Incomplete Data!')
                 continue
@@ -806,7 +804,7 @@ class FigurePlotter:
         variation_data = {}
         for f in glob.glob(fs):
             try:
-                v, data = self.parser.parse_mm_file(f, var)
+                v, data = self.parser.parse_file(f, var, 'mm')
             except:
                 logging.error(f'{fs}: Incomplete Data!')
                 continue
@@ -854,7 +852,7 @@ class FigurePlotter:
         variation_data = {}
         for f in glob.glob(fs):
             try:
-                v, data, x_axis_adjust = self.parser.parse_aw_file(f, var)
+                v, data, x_axis_adjust = self.parser.parse_file(f, var, 'aw')
             except:
                 logging.error(f'{fs}: Incomplete Data!')
                 continue
@@ -903,7 +901,7 @@ class FigurePlotter:
 
         for f in glob.glob(fs):
             try:
-                v, data, x_axis_adjust = self.parser.parse_ww_file(f, var)
+                v, data, x_axis_adjust = self.parser.parse_file(f, var, 'ww')
             except:
                 logging.error(f'{fs}: Incomplete Data!')
                 continue

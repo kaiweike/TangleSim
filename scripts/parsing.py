@@ -16,18 +16,47 @@ class FileParser:
     """
 
     def __init__(self, cd):
-        """Initialize the parameters.
+        self.factory = ParserFactory(cd)
+        
+    def parse_file(self, fn, var, file_type):
+        parser = self.factory.get_parser(file_type)
+        return parser.parse(fn, var)
 
-        Args:
-            cd: The configuration dictionary.
-        """
+class ParserFactory:
+    def __init__(self, cd):
+        self.cd = cd
+        self.parsers = {
+            'aw': AWParser(cd),
+            'block_info': BlockInfoParser(cd),
+            'accept_delay': AcceptDelayParser(cd),
+            'confirm_threshold': ConfirmThresholdParser(cd),
+            'mm': MMParser(cd),
+            'ww': WWParser(cd),
+            'throughput': ThroughputParser(cd),
+            'all_throughput': AllThroughputParser(cd),
+            'confirmed_color': ConfirmedColorParser(cd),
+            'node': NodeParser(cd)
+        }
+
+    def get_parser(self, file_type):
+        parser = self.parsers.get(file_type)
+        if parser is None:
+            raise ValueError(f"Unknown file type: {file_type}")
+        return parser
+
+class BaseParser:
+    def __init__(self, cd):
         self.x_axis_begin = cd['X_AXIS_BEGIN']
         self.colored_confirmed_like_items = c.COLORED_CONFIRMED_LIKE_ITEMS
         self.one_second = c.ONE_SEC
         self.target = c.TARGET
         self.config_path = cd['CONFIGURATION_PATH']
 
-    def parse_aw_file(self, fn, variation):
+    def parse(self, fn, variation):
+        raise NotImplementedError("Subclasses should implement this!")
+
+class AWParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the accumulated weight files.
 
         Args:
@@ -60,7 +89,8 @@ class FileParser:
         data[self.target] = data[self.target] / float(c["SlowdownFactor"])
         return v, data[self.target], x_axis
 
-    def parse_block_information_file(self, fn, variation):
+class BlockInfoParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the block information files.
 
         Args:
@@ -88,7 +118,7 @@ class FileParser:
         # ns is the time scale of the block information
         spammer_accepted_time = data.loc[(data['Issuer Burn Policy'] == 0) & (data[self.target] != 0)]
 
-        non_spammer_accepted_time = data.loc[(data['Issuer Burn Policy'] == 1)& (data[self.target] != 0)]
+        non_spammer_accepted_time = data.loc[(data['Issuer Burn Policy'] == 1) & (data[self.target] != 0)]
         
         spammer_not_accepted_time = data.loc[(data['Issuer Burn Policy'] == 0) & (data[self.target] == 0)]
         
@@ -110,7 +140,8 @@ class FileParser:
                 spammer_not_accepted_time,
                 non_spammer_not_accepted_time)
 
-    def parse_acceptance_delay_file(self, fn, variation):
+class AcceptDelayParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the acceptance time latency among nodes.
 
         Returns:
@@ -134,7 +165,8 @@ class FileParser:
 
         return v, accepted_delay_time
     
-    def parse_confirmation_threshold_file(self, fn, variation):
+class ConfirmThresholdParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the acceptance time latency among nodes.
 
         Returns:
@@ -183,7 +215,8 @@ class FileParser:
                 confirmation_age,
                 confirmation_age_since_tip)
     
-    def parse_mm_file(self, fn, variation):
+class MMParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the witness weight files.
 
         Args:
@@ -212,7 +245,8 @@ class FileParser:
         requested_messages = data['Number of Requested Messages'].tolist()[-1]
         return v, requested_messages
 
-    def parse_ww_file(self, fn, variation):
+class WWParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the witness weight files.
 
         Args:
@@ -246,7 +280,8 @@ class FileParser:
                   float(c["SlowdownFactor"]) / float(self.one_second))
         return v, data['Witness Weight'], x_axis
 
-    def parse_throughput_file(self, fn, var):
+class ThroughputParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the throughput files.
         Args:
             fn: The input file name.
@@ -268,7 +303,7 @@ class FileParser:
         with open(config_fn) as f:
             c = json.load(f)
 
-        v = str(c[var])
+        v = str(c[variation])
 
         data = pd.read_csv(fn)
 
@@ -286,7 +321,8 @@ class FileParser:
                   float(c["SlowdownFactor"]))
         return v, (tip_pool_size, processed_messages, issued_messages, x_axis)
 
-    def parse_all_throughput_file(self, fn, var):
+class AllThroughputParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the all-tp files.
         Args:
             fn: The input file name.
@@ -306,7 +342,7 @@ class FileParser:
         with open(config_fn) as f:
             c = json.load(f)
 
-        v = str(c[var])
+        v = str(c[variation])
 
         data = pd.read_csv(fn)
 
@@ -321,8 +357,9 @@ class FileParser:
         x_axis = (data['ns since start'] / float(self.one_second) /
                   float(c["SlowdownFactor"]))
         return v, (tip_pool_sizes, x_axis)
-
-    def parse_confirmed_color_file(self, fn, var):
+    
+class ConfirmedColorParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the confirmed color files.
 
         Args:
@@ -376,7 +413,7 @@ class FileParser:
         colored_node_aw["Blue (Confirmed Accumulated Weight)"] -= adversary_confirmed_aw_blue
         colored_node_aw["Red (Confirmed Accumulated Weight)"] -= adversary_confirmed_aw_red
 
-        v = str(c[var])
+        v = str(c[variation])
 
         honest_total_weight = (c["NodesTotalWeight"] -
                                adversary_liked_aw_blue.iloc[-1] - adversary_liked_aw_red.iloc[-1])
@@ -387,8 +424,9 @@ class FileParser:
 
         return v, (colored_node_aw, convergence_time, flips, unconfirming_blue, unconfirming_red,
                    honest_total_weight, x_axis)
-
-    def parse_node_file(self, fn, var):
+    
+class NodeParser(BaseParser):
+    def parse(self, fn, variation):
         """Parse the node files.
         Args:
             fn: The input file name.
@@ -407,7 +445,7 @@ class FileParser:
         with open(config_fn) as f:
             c = json.load(f)
 
-        v = str(c[var])
+        v = str(c[variation])
 
         # Get the confirmation threshold
         weight_threshold = float(c['ConfirmationThreshold'])
