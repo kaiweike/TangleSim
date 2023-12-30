@@ -86,17 +86,13 @@ class FileParser:
         data = pd.read_csv(fn)
         data = data.reset_index()
         # ns is the time scale of the block information
-        spammer_accepted_time = data[data['Issuer Burn Policy']
-                                     == 0][data[self.target] != 0]
+        spammer_accepted_time = data.loc[(data['Issuer Burn Policy'] == 0) & (data[self.target] != 0)]
 
-        non_spammer_accepted_time = data[data['Issuer Burn Policy']
-                                         == 1][data[self.target] != 0]
-
-        spammer_not_accepted_time = data[data['Issuer Burn Policy']
-                                         == 0][data[self.target] == 0]
-
-        non_spammer_not_accepted_time = data[data['Issuer Burn Policy']
-                                             == 1][data[self.target] == 0]
+        non_spammer_accepted_time = data.loc[(data['Issuer Burn Policy'] == 1)& (data[self.target] != 0)]
+        
+        spammer_not_accepted_time = data.loc[(data['Issuer Burn Policy'] == 0) & (data[self.target] == 0)]
+        
+        non_spammer_not_accepted_time = data.loc[(data['Issuer Burn Policy'] == 1) & (data[self.target] == 0)]
 
         spammer_accepted_time = ((spammer_accepted_time[self.target] /
                                   float(c["SlowdownFactor"])))
